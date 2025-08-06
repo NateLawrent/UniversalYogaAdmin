@@ -1,0 +1,88 @@
+<resources>
+    <string name="app_name">Universal Yoga Admin</string>
+
+    <string name="search_hint_teacher">Search by teacher name...</string>
+    <string name="menu_filter">Filter</string>
+    <string name="menu_upload">Upload to Cloud</string>
+    <string name="menu_reset_db">Reset Database</string>
+    <string name="filter_dialog_title">Select Filter Type</string>
+    <string name="filter_by_day_of_week">Filter by Day of Week</string>
+    <string name="filter_by_date">Filter by Specific Date</string>
+    <string name="filter_reset">Reset / Show All</string>
+    <string name="filter_cancel">Cancel</string>
+    <string name="filter_select_day">Select Day of Week</string>
+    <string name="filtering_by">Filtering by: %s</string>
+    <string name="course_deleted_success">Course deleted: %s</string>
+
+    <string name="scheduled_classes_title">Scheduled Classes:</string>
+    <string name="no_scheduled_classes">No classes have been scheduled yet.</string>
+    <string name="add_new_instance_desc">Add new class instance</string>
+    <string name="error_course_not_found">Error: Course not found.</string>
+    <string name="instance_deleted_success">Class instance deleted.</string>
+
+    <string name="title_add_course">Add New Course</string>
+    <string name="title_edit_course">Edit Course</string>
+    <string name="title_add_instance">Add New Instance</string>
+    <string name="title_edit_instance">Edit Instance</string>
+    <string name="hint_course_name">Course Name</string>
+    <string name="label_day_of_week">Day of the week</string>
+    <string name="label_class_type">Class type</string>
+    <string name="hint_course_set">Set Number</string>
+    <string name="hint_capacity">Capacity</string>
+    <string name="hint_duration">Duration (e.g., 60 minutes)</string>
+    <string name="hint_price">Price</string>
+    <string name="hint_description">Description</string>
+    <string name="button_save_course">Save Course</string>
+    <string name="label_date">Date:</string>
+    <string name="date_not_selected">No date selected</string>
+    <string name="button_pick_date">Pick Date</string>
+    <string name="hint_teacher_name">Teacher Name</string>
+    <string name="hint_comments">Comments (optional)</string>
+    <string name="button_save_instance">Save Class</string>
+
+    <string name="confirm_delete_title">Confirm Deletion</string>
+    <string name="confirm_delete_instance_message">Are you sure you want to delete the class on %s?</string>
+    <string name="delete_button">Delete</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="reset_db_confirm_title">Confirm Reset</string>
+    <string name="reset_db_confirm_message">All local data will be permanently deleted. Data on the cloud will not be affected. Are you sure?</string>
+    <string name="reset_db_success">Database has been reset.</string>
+    <string name="upload_started">Starting upload...</string>
+    <string name="upload_complete">Upload complete! Check Firebase Console.</string>
+    <string name="no_network">No network connection!</string>
+    <string name="save_course_success">Course saved successfully!</string>
+    <string name="update_course_success">Course updated successfully!</string>
+    <string name="add_instance_success">Class instance added successfully!</string>
+    <string name="update_instance_success">Class instance updated!</string>
+    <string name="error_fill_required_fields">Please fill in all required fields</string>
+    <string name="error_invalid_date">Error: The date you selected is not a %s</string>
+
+    <string-array name="days_of_week">
+        <item>Monday</item>
+        <item>Tuesday</item>
+        <item>Wednesday</item>
+        <item>Thursday</item>
+        <item>Friday</item>
+        <item>Saturday</item>
+        <item>Sunday</item>
+    </string-array>
+
+    <string-array name="class_types">
+        <item>Flow Yoga</item>
+        <item>Aerial Yoga</item>
+        <item>Family Yoga</item>
+    </string-array>
+
+    <string name="delete_instance_desc">Delete class instance</string>
+    <string name="price_label_format">Price: %.2f £</string>
+    <string name="course_schedule_format">%s - %s</string>
+    <string name="confirm_delete_course_message">Are you sure you want to delete the course \'%s\'?</string>
+    <string-array name="filter_options">
+        <item>@string/filter_by_day_of_week</item>
+        <item>@string/filter_by_date</item>
+        <item>@string/filter_reset</item>
+        <item>@string/filter_cancel</item>
+    </string-array>
+    <string name="teacher_label">Teacher: %s</string>
+    <string name="comments_label">Note: %s</string>
+</resources>
