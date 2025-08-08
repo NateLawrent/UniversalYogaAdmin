@@ -1,18 +1,20 @@
 package com.example.universalyogaadmin;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import com.google.android.material.textfield.TextInputEditText;
-import java.util.Arrays;
 
 public class AddEditCourseActivity extends AppCompatActivity {
 
+    private Toolbar toolbar;
     private Spinner spinnerDayOfWeek, spinnerTypeOfClass;
     private TextInputEditText edtCourseName, edtCourseSet, edtCapacity, edtDuration, edtPrice, edtDescription;
     private Button btnSaveCourse;
@@ -27,23 +29,35 @@ public class AddEditCourseActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_edit_course);
 
         dbHelper = new DatabaseHelper(this);
-
         initViews();
+
+        // THIẾT LẬP TOOLBAR
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+
         setupSpinners();
 
         currentCourseId = getIntent().getLongExtra("COURSE_ID", -1);
         if (currentCourseId != -1) {
-            setTitle("Sửa Khóa học");
+            // Chế độ Sửa
             loadCourseData();
+            // Đổi tiêu đề trên Toolbar
+            if(getSupportActionBar() != null) getSupportActionBar().setTitle(getString(R.string.title_edit_course));
         } else {
-            setTitle("Thêm Khóa học Mới");
+            // Chế độ Thêm mới
             currentCourse = new Course();
+            // Đổi tiêu đề trên Toolbar
+            if(getSupportActionBar() != null) getSupportActionBar().setTitle(getString(R.string.title_add_course));
         }
 
         btnSaveCourse.setOnClickListener(v -> saveCourse());
     }
 
     private void initViews() {
+        toolbar = findViewById(R.id.toolbar_add_edit);
         edtCourseName = findViewById(R.id.edt_course_name);
         spinnerDayOfWeek = findViewById(R.id.spinner_day_of_week);
         spinnerTypeOfClass = findViewById(R.id.spinner_type_of_class);
@@ -53,6 +67,15 @@ public class AddEditCourseActivity extends AppCompatActivity {
         edtPrice = findViewById(R.id.edt_price);
         edtDescription = findViewById(R.id.edt_description);
         btnSaveCourse = findViewById(R.id.btn_save_course);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish(); // Đóng màn hình hiện tại và quay về
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void setupSpinners() {
@@ -97,7 +120,6 @@ public class AddEditCourseActivity extends AppCompatActivity {
     }
 
     private void saveCourse() {
-        // Lấy dữ liệu từ các trường UI
         String name = edtCourseName.getText().toString().trim();
         String dayOfWeek = spinnerDayOfWeek.getSelectedItem().toString();
         String typeOfClass = spinnerTypeOfClass.getSelectedItem().toString();
@@ -107,13 +129,11 @@ public class AddEditCourseActivity extends AppCompatActivity {
         String priceStr = edtPrice.getText().toString().trim();
         String description = edtDescription.getText().toString().trim();
 
-        // Kiểm tra các trường bắt buộc
         if (TextUtils.isEmpty(name) || TextUtils.isEmpty(courseSetStr) || TextUtils.isEmpty(capacityStr) || TextUtils.isEmpty(duration) || TextUtils.isEmpty(priceStr)) {
-            Toast.makeText(this, "Vui lòng điền đầy đủ các trường bắt buộc", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.error_fill_required_fields), Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Gán dữ liệu vào đối tượng Course
         currentCourse.setCourseName(name);
         currentCourse.setDayOfWeek(dayOfWeek);
         currentCourse.setType(typeOfClass);
@@ -122,15 +142,13 @@ public class AddEditCourseActivity extends AppCompatActivity {
         currentCourse.setDuration(duration);
         currentCourse.setPrice(Double.parseDouble(priceStr));
         currentCourse.setCourseDescription(description);
-        // Không còn imageUrl
 
-        // Lưu vào database
         if (currentCourseId == -1) {
             dbHelper.addCourse(currentCourse);
-            Toast.makeText(this, "Lưu khóa học thành công!", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.save_course_success), Toast.LENGTH_LONG).show();
         } else {
             dbHelper.updateCourse(currentCourse);
-            Toast.makeText(this, "Cập nhật khóa học thành công!", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.update_course_success), Toast.LENGTH_LONG).show();
         }
         finish();
     }

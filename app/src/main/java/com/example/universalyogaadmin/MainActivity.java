@@ -126,8 +126,8 @@ public class MainActivity extends AppCompatActivity implements CourseAdapter.OnC
     }
     private void showResetConfirmationDialog() {
         new AlertDialog.Builder(this)
-                .setTitle("Xác nhận Reset")
-                .setMessage("Tất cả dữ liệu local (trên điện thoại) sẽ bị xóa vĩnh viễn. Dữ liệu trên cloud sẽ không bị ảnh hưởng. Bạn có chắc chắn?")
+                .setTitle("Reset Confirmation")
+                .setMessage("All local data (on this device) will be permanently deleted. Cloud data will not be affected. Are you sure?")
                 .setPositiveButton("Reset", (dialog, which) -> {
                     dbHelper.resetDatabase();
                     // Tải lại danh sách (bây giờ sẽ là rỗng)
@@ -166,12 +166,12 @@ public class MainActivity extends AppCompatActivity implements CourseAdapter.OnC
     private void showDayOfWeekFilterDialog() {
         final CharSequence[] days = getResources().getTextArray(R.array.days_of_week);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Chọn ngày trong tuần");
+        builder.setTitle("Filter by Day of Week");
         builder.setItems(days, (dialog, which) -> {
             String selectedDay = days[which].toString();
             List<Course> filteredList = dbHelper.searchCoursesByDay(selectedDay);
             courseAdapter.filterList(filteredList);
-            Toast.makeText(this, "Đang lọc theo: " + selectedDay, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Filtering by: " + selectedDay, Toast.LENGTH_SHORT).show();
         });
         builder.show();
     }
@@ -196,11 +196,11 @@ public class MainActivity extends AppCompatActivity implements CourseAdapter.OnC
 
     private void uploadDataToFirestore() {
         if (!isNetworkAvailable()) {
-            Toast.makeText(this, "Không có kết nối mạng!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "No network connection!", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        Toast.makeText(this, "Bắt đầu đồng bộ...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Starting sync...", Toast.LENGTH_SHORT).show();
 
         // --- BƯỚC 1: UPLOAD NHỮNG THAY ĐỔI (THÊM MỚI / SỬA) ---
         List<Course> unsyncedCourses = dbHelper.getUnsyncedCourses();
@@ -256,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements CourseAdapter.OnC
         // Logic cơ bản: Lấy danh sách ID từ cloud, lấy danh sách ID từ local.
         // ID nào có trên cloud mà không có ở local thì xóa nó trên cloud.
 
-        Toast.makeText(this, "Đồng bộ hoàn tất!", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "Sync Complete!", Toast.LENGTH_LONG).show();
     }
 
     private boolean isNetworkAvailable() {

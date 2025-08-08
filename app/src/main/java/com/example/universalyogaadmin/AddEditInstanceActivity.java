@@ -3,14 +3,14 @@ package com.example.universalyogaadmin;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.MenuItem; // THÊM IMPORT
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import androidx.annotation.NonNull; // THÊM IMPORT
 import androidx.appcompat.app.AppCompatActivity;
-
+import androidx.appcompat.widget.Toolbar; // THÊM IMPORT
 import com.google.android.material.textfield.TextInputEditText;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -19,6 +19,7 @@ import java.util.Locale;
 
 public class AddEditInstanceActivity extends AppCompatActivity {
 
+    private Toolbar toolbar; // THÊM BIẾN TOOLBAR
     private TextView tvSelectedDate;
     private Button btnPickDate, btnSaveInstance;
     private TextInputEditText edtTeacherName, edtComments;
@@ -39,24 +40,31 @@ public class AddEditInstanceActivity extends AppCompatActivity {
         dbHelper = new DatabaseHelper(this);
         initViews();
 
+        // THIẾT LẬP TOOLBAR
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+
+        // Kiểm tra chế độ Sửa hay Thêm mới
         if (getIntent().hasExtra("INSTANCE_ID")) {
-            // --- CHẾ ĐỘ SỬA ---
             instanceId = getIntent().getLongExtra("INSTANCE_ID", -1);
-            setTitle("Sửa Buổi Học");
-            // Chỉ gọi phương thức ở đây
             loadInstanceData();
+            if (getSupportActionBar() != null) getSupportActionBar().setTitle(getString(R.string.title_edit_instance));
         } else if (getIntent().hasExtra("COURSE_ID")) {
-            // --- CHẾ ĐỘ THÊM MỚI ---
             courseId = getIntent().getLongExtra("COURSE_ID", -1);
-            setTitle("Thêm Buổi Học Mới");
+            if (getSupportActionBar() != null) getSupportActionBar().setTitle(getString(R.string.title_add_instance));
         }
 
         // Tải thông tin khóa học cha
-        long parentCourseId = (instanceId != -1) ? currentInstance.getCourseId() : courseId;
-        parentCourse = dbHelper.getCourse(parentCourseId);
+        long parentCourseId = (instanceId != -1 && currentInstance != null) ? currentInstance.getCourseId() : courseId;
+        if (parentCourseId != -1) {
+            parentCourse = dbHelper.getCourse(parentCourseId);
+        }
 
         if (parentCourse == null) {
-            Toast.makeText(this, "Lỗi: Không tìm thấy khóa học gốc.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.error_course_not_found), Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -65,6 +73,7 @@ public class AddEditInstanceActivity extends AppCompatActivity {
     }
 
     private void initViews() {
+        toolbar = findViewById(R.id.toolbar_add_edit_instance); // Ánh xạ Toolbar
         tvSelectedDate = findViewById(R.id.tv_selected_date);
         btnPickDate = findViewById(R.id.btn_pick_date);
         btnSaveInstance = findViewById(R.id.btn_save_instance);
@@ -72,16 +81,28 @@ public class AddEditInstanceActivity extends AppCompatActivity {
         edtComments = findViewById(R.id.edt_comments);
     }
 
-    // --- ĐỊNH NGHĨA PHƯƠNG THỨC Ở ĐÂY, BÊN NGOÀI onCreate ---
+    // THÊM PHƯƠNG THỨC NÀY ĐỂ XỬ LÝ NÚT BACK
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish(); // Đóng màn hình hiện tại và quay về
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void setupListeners() {
+        btnPickDate.setOnClickListener(v -> showDatePickerDialog());
+        btnSaveInstance.setOnClickListener(v -> saveInstance());
+    }
+
     private void loadInstanceData() {
         currentInstance = dbHelper.getSingleInstance(instanceId);
-
         if (currentInstance == null) {
-            Toast.makeText(this, "Lỗi: Không thể tải dữ liệu buổi học.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error: Could not load instance data.", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
-
         edtTeacherName.setText(currentInstance.getTeacher());
         edtComments.setText(currentInstance.getComments());
 
@@ -95,11 +116,6 @@ public class AddEditInstanceActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         updateDateInView();
-    }
-
-    private void setupListeners() {
-        btnPickDate.setOnClickListener(v -> showDatePickerDialog());
-        btnSaveInstance.setOnClickListener(v -> saveInstance());
     }
 
     private void showDatePickerDialog() {
@@ -124,45 +140,38 @@ public class AddEditInstanceActivity extends AppCompatActivity {
         String teacher = edtTeacherName.getText().toString().trim();
         String comments = edtComments.getText().toString().trim();
 
-        if (date.equals("Chưa chọn ngày") || TextUtils.isEmpty(teacher)) {
-            Toast.makeText(this, "Vui lòng chọn ngày và nhập tên giáo viên", Toast.LENGTH_SHORT).show();
+        if (date.equals(getString(R.string.date_not_selected)) || TextUtils.isEmpty(teacher)) {
+            Toast.makeText(this, getString(R.string.error_fill_required_fields), Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (!isDateDayOfWeekCorrect()) {
-            // Lấy chuỗi định dạng từ resource và truyền ngày vào
             String errorMessage = getString(R.string.error_invalid_date, parentCourse.getDayOfWeek());
             Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
             return;
         }
 
         if (instanceId == -1) {
-            // Lưu mới
             ClassInstance newInstance = new ClassInstance();
             newInstance.setCourseId(courseId);
             newInstance.setDate(date);
             newInstance.setTeacher(teacher);
             newInstance.setComments(comments);
             dbHelper.addInstance(newInstance);
-            Toast.makeText(this, "Đã thêm buổi học thành công!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.add_instance_success), Toast.LENGTH_SHORT).show();
         } else {
-            // Cập nhật
             currentInstance.setDate(date);
             currentInstance.setTeacher(teacher);
             currentInstance.setComments(comments);
             dbHelper.updateInstance(currentInstance);
-            Toast.makeText(this, "Đã cập nhật buổi học!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.update_instance_success), Toast.LENGTH_SHORT).show();
         }
         finish();
     }
 
     private boolean isDateDayOfWeekCorrect() {
-        // Sử dụng Locale.ENGLISH để đảm bảo tên ngày là tiếng Anh (Monday, Tuesday...)
         SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.ENGLISH);
         String selectedDayOfWeek = dayFormat.format(selectedDateCalendar.getTime());
-
-        // Bây giờ, cả hai chuỗi sẽ cùng là tiếng Anh và có thể so sánh chính xác
         return selectedDayOfWeek.equalsIgnoreCase(parentCourse.getDayOfWeek());
-
     }
 }
